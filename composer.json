@@ -1,0 +1,22 @@
+{
+  "name": "platx/yii2-rest",
+  "description": "Rest classes for using in your api module.",
+  "type": "yii2-extension",
+  "keywords": ["yii2","rest","actions","forms","models"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Vladyslav Platonov",
+      "email": "asdixer@gmail.com"
+    }
+  ],
+  "require": {
+    "yiisoft/yii2": "*",
+    "platx/httperror": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "platx\\rest\\": ""
+    }
+  }
+}
