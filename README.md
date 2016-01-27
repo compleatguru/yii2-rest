@@ -113,6 +113,27 @@ class MyController extends \platx\rest\Controller
 }
 ```
 
+In API Index action you can use query builder:
+`/api/my?where[id][in]=1,2,3`
+or
+`/api/my?where={"id":{"in":[1,2,3]}}`
+
+List of available operators:
+
+| Operator      | Value         | Description |
+| ------------- | ------------- | ------------- |
+| eq            | One           | Parameter equals value |
+| neq           | One           | Parameter not equals value |
+| like          | One           | Value is a substring of parameter |
+| nlike         | One           | Value is not a substring of parameter |
+| in            | Many          | Attribute equals one of many values |
+| nin           | Many          | Attribute not equals one of many values |
+| gt            | One           | Attribute greater than value |
+| gteq          | One           | Attribute greater than or equals value |
+| lt            | One           | Attribute less than value |
+| lteq          | One           | Attribute less than or equals value |
+
+
 In your config add this rules to UrlManager rules, if you want to use api like api module:
 
 ```php
@@ -134,6 +155,7 @@ And now you can use api, for example:
 ```
 GET http://your-site.com/api/my - List of records
 GET http://your-site.com/api/my?offset=2&limit=5 - Select records from second to seventh
+GET http://your-site.com/api/my?where={"id": {"gteq": 2, "lt": 5}} - Select records with id greater than or equal 2 and less than 5
 GET http://your-site.com/api/my?sort=-created_at - List of records with sorting descending by created_at attribute
 GET http://your-site.com/api/my?sort=created_at - List of records with sorting ascending by created_at attribute
 GET http://your-site.com/api/my?fields=id - List of records with selecting just id attribute

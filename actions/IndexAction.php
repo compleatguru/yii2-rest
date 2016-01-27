@@ -1,18 +1,15 @@
 <?php
 
-namespace frontend\modules\api\base\actions;
+namespace platx\rest\actions;
 
-use platx\rest\Controller;
-use platx\rest\SearchForm;
-use platx\rest\Serializer;
 use platx\httperror\HttpError;
+use platx\rest\Serializer;
 use Yii;
-use yii\base\Action;
+use yii\base\InvalidConfigException;
 
 
 /**
  * Class IndexAction
- * @property Controller $controller
  * @package platx\rest\actions
  */
 class IndexAction extends Action
@@ -27,11 +24,9 @@ class IndexAction extends Action
      */
     public function init()
     {
-        if (!$this->searchFormClass) {
-            HttpError::the500('$searchFormClass property must be set!');
+        if ($this->searchFormClass === null) {
+            throw new InvalidConfigException(get_class($this) . '::$searchFormClass must be set.');
         }
-
-        parent::init();
     }
 
     /**
@@ -41,7 +36,7 @@ class IndexAction extends Action
      */
     public function run($offset = 0, $limit = 10)
     {
-        /** @var SearchForm $searchForm */
+        /** @var \platx\rest\SearchForm $searchForm */
         $searchForm = new $this->searchFormClass();
 
         $get = Yii::$app->request->get();
@@ -53,16 +48,22 @@ class IndexAction extends Action
         }
 
         $countAll = $query->count();
-        $models = $query->offset($offset)->limit($limit)->all();
+        $query->offset($offset);
+        if($limit) {
+            $query->limit($limit);
+        }
+        $models = $query->all();
         $models = (new Serializer())->serializeModels($models);
         $countCurrent = count($models);
 
-        return [
+        $result = [
             'offset' => $offset,
             'limit' => $limit,
             'count_all' => (int) $countAll,
             'count_current' => $countCurrent,
             'items' => $models,
         ];
+
+        return $result;
     }
 }

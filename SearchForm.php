@@ -2,17 +2,16 @@
 
 namespace platx\rest;
 
+use yii\db\ActiveQueryInterface;
 use yii\db\ActiveRecord;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\base\Model;
 use yii\data\Sort;
-use yii\db\ActiveQuery;
-use yii\db\ActiveQueryInterface;
 
 
 /**
- * Базовая форма фильтрации
+ * Base search form
  * @package platx\rest
  */
 class SearchForm extends Model
@@ -23,14 +22,24 @@ class SearchForm extends Model
     public $modelClass;
 
     /**
-     * @var ActiveQuery
+     * @var \yii\db\ActiveQuery
      */
     public $query;
 
     /**
-     * @var integer
+     * @var bool
      */
-    public $id;
+    public $whereEnabled = true;
+
+    /**
+     * @var array|string|null
+     */
+    public $where;
+
+    /**
+     * @var bool
+     */
+    public $enableMultiSort = true;
 
     /**
      * @var string
@@ -43,7 +52,6 @@ class SearchForm extends Model
     public function rules()
     {
         return [
-            ['id', 'safe'],
             ['modelClass', 'string'],
             ['query', 'safe'],
             ['modelClass', 'required', 'when' => function($model) {
@@ -52,6 +60,7 @@ class SearchForm extends Model
             ['query', 'required', 'when' => function($model) {
                 return !$model->modelClass;
             }],
+            ['where', 'safe'],
         ];
     }
 
@@ -61,15 +70,15 @@ class SearchForm extends Model
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
-            'modelClass' => 'Модель для фильтрации',
-            'query' => 'Запрос',
+            'modelClass' => 'Model class for filter',
+            'query' => 'Query',
+            'where' => 'Query filter',
         ];
     }
 
     /**
      * @param array $attributes
-     * @return ActiveQuery
+     * @return \yii\db\ActiveQuery
      */
     public function buildQuery($attributes = [])
     {
@@ -90,6 +99,10 @@ class SearchForm extends Model
                 $this->query->addOrderBy($sort->getOrders());
             }
 
+            if ($this->whereEnabled && $this->where) {
+                $this->query = $this->setWhere($this->query, $this->where);
+            }
+
             return $this->query;
         }
 
@@ -101,7 +114,7 @@ class SearchForm extends Model
      */
     protected function filterAttributes()
     {
-        $this->query->andFilterWhere(['id' => $this->id]);
+
     }
 
     /**
@@ -122,10 +135,7 @@ class SearchForm extends Model
     public function setSort($value)
     {
         if (is_array($value)) {
-            $config = ['class' => Sort::className()];
-            if ($this->id !== null) {
-                $config['sortParam'] = $this->id . '-sort';
-            }
+            $config = ['class' => Sort::className(), 'enableMultiSort' => $this->enableMultiSort];
             $this->_sort = Yii::createObject(array_merge($config, $value));
         } elseif ($value instanceof Sort || $value === false) {
             $this->_sort = $value;
@@ -152,6 +162,16 @@ class SearchForm extends Model
                 }
             }
         }
+    }
+
+    /**
+     * @param $query
+     * @param $params
+     * @return null|\yii\db\Query|\yii\db\ActiveQuery
+     */
+    public function setWhere($query, $params)
+    {
+        return (new ApiQuery())->set($params)->build($query);
     }
 
 }

@@ -1,37 +1,19 @@
 <?php
 
-namespace platx\rest;
+namespace platx\rest\actions;
 
 use yii\db\ActiveRecord;
 use platx\httperror\HttpError;
 use Yii;
-use yii\base\Action;
 
 
 /**
  * Class ViewAction
- * @package frontend\modules\api\base\actions
+ * @package platx\rest\actions
  */
 class ViewAction extends Action
 {
     /**
-     * @var string
-     */
-    public $modelClass;
-
-    /**
-     * @throws \yii\web\HttpException
-     */
-    public function init()
-    {
-        if (!$this->modelClass) {
-            HttpError::the500('$modelClass property must be set!');
-        }
-
-        parent::init();
-    }
-
-    /**]
      * @param $id
      * @return ActiveRecord
      * @throws \yii\web\NotFoundHttpException

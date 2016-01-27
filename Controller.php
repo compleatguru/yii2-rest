@@ -2,24 +2,24 @@
 
 namespace platx\rest;
 
-use platx\httperror\HttpError;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\web\Response;
 
 
 /**
- * Базовый контроллер
+ * Base rest controller
  * @package platx\rest
  */
 class Controller extends \yii\rest\Controller
 {
     /**
-     * @var string Модель с которой работает контроллер
+     * @var string
      */
     public $modelClass;
 
     /**
-     * @var string Форма фильтрации с которой работает контроллер
+     * @var string
      */
     public $searchFormClass;
 
@@ -28,11 +28,11 @@ class Controller extends \yii\rest\Controller
      */
     public function init()
     {
-        if (is_null($this->modelClass)) {
-            HttpError::the500('$modelClass property must be set!');
+        if ($this->modelClass === null) {
+            throw new InvalidConfigException(get_class($this) . '::$modelClass must be set.');
         }
-        if (is_null($this->searchFormClass)) {
-            HttpError::the500('$searchFormClass property must be set!');
+        if ($this->searchFormClass === null) {
+            throw new InvalidConfigException(get_class($this) . '::$searchFormClass must be set.');
         }
 
         parent::init();

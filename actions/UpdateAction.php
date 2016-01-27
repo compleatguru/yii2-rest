@@ -1,44 +1,28 @@
 <?php
 
-namespace platx\rest;
+namespace platx\rest\actions;
 
-use yii\db\ActiveRecord;
 use platx\httperror\HttpError;
 use Yii;
-use yii\base\Action;
+use yii\web\ServerErrorHttpException;
 
 
 /**
  * Class UpdateAction
- * @package frontend\modules\api\base\actions
+ * @package platx\rest\actions
  */
 class UpdateAction extends Action
 {
     /**
-     * @var string
-     */
-    public $modelClass;
-
-    /**
-     * @throws \yii\web\HttpException
-     */
-    public function init()
-    {
-        if (!$this->modelClass) {
-            HttpError::the500('$modelClass property must be set!');
-        }
-
-        parent::init();
-    }
-
-    /**]
      * @param $id
-     * @return ActiveRecord
+     * @return \yii\db\ActiveRecord
+     * @throws ServerErrorHttpException
+     * @throws \yii\base\InvalidConfigException
      * @throws \yii\web\NotFoundHttpException
      */
     public function run($id)
     {
-        /** @var ActiveRecord $model */
+        /** @var \yii\db\ActiveRecord $model */
         $model = new $this->modelClass();
 
         $model = $model->findOne(['id' => $id]);
@@ -47,19 +31,11 @@ class UpdateAction extends Action
             HttpError::the404('Not found');
         }
 
-        $post = Yii::$app->request->post();
-
-        if ($post) {
-            $model->setAttributes($post);
-
-            if($model->save()) {
-                return $model;
-            } else {
-                return HttpError::validateError('Validation error', $model->errors);
-            }
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        if ($model->save() === false && !$model->hasErrors()) {
+            throw new ServerErrorHttpException('Failed to update the object for unknown reason.');
         }
 
-        HttpError::the400('Attributes are empty!');
-        return false;
+        return $model;
     }
 }

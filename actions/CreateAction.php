@@ -2,10 +2,9 @@
 
 namespace platx\rest\actions;
 
-use yii\db\ActiveRecord;
-use platx\httperror\HttpError;
 use Yii;
-use yii\base\Action;
+use yii\helpers\Url;
+use yii\web\ServerErrorHttpException;
 
 
 /**
@@ -17,42 +16,28 @@ class CreateAction extends Action
     /**
      * @var string
      */
-    public $modelClass;
+    public $viewAction = 'view';
 
     /**
-     * @throws \yii\web\HttpException
-     */
-    public function init()
-    {
-        if (!$this->modelClass) {
-            HttpError::the500('$modelClass property must be set!');
-        }
-
-        parent::init();
-    }
-
-    /**]
-     * @return ActiveRecord
-     * @throws \yii\web\NotFoundHttpException
+     * @return \yii\db\ActiveRecord
+     * @throws ServerErrorHttpException
+     * @throws \yii\base\InvalidConfigException
      */
     public function run()
     {
-        /** @var ActiveRecord $model */
+        /** @var \yii\db\ActiveRecord $model */
         $model = new $this->modelClass();
 
-        $post = Yii::$app->request->post();
-
-        if ($post) {
-            $model->setAttributes($post);
-
-            if($model->save()) {
-                return $model;
-            } else {
-                return HttpError::validateError('Validation error', $model->errors);
-            }
+        $model->load(Yii::$app->getRequest()->getBodyParams(), '');
+        if ($model->save()) {
+            $response = Yii::$app->getResponse();
+            $response->setStatusCode(201);
+            $id = implode(',', array_values($model->getPrimaryKey(true)));
+            $response->getHeaders()->set('Location', Url::toRoute([$this->viewAction, 'id' => $id], true));
+        } elseif (!$model->hasErrors()) {
+            throw new ServerErrorHttpException('Failed to create the object for unknown reason.');
         }
 
-        HttpError::the400('Attributes are empty!');
-        return false;
+        return $model;
     }
 }

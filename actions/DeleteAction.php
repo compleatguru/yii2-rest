@@ -1,11 +1,10 @@
 <?php
 
-namespace frontend\modules\api\base\actions;
+namespace platx\rest\actions;
 
-use yii\db\ActiveRecord;
 use platx\httperror\HttpError;
 use Yii;
-use yii\base\Action;
+use yii\web\ServerErrorHttpException;
 
 
 /**
@@ -15,30 +14,14 @@ use yii\base\Action;
 class DeleteAction extends Action
 {
     /**
-     * @var string
-     */
-    public $modelClass;
-
-    /**
-     * @throws \yii\web\HttpException
-     */
-    public function init()
-    {
-        if (!$this->modelClass) {
-            HttpError::the500('$modelClass property must be set!');
-        }
-
-        parent::init();
-    }
-
-    /**]
      * @param $id
-     * @return ActiveRecord
+     * @throws ServerErrorHttpException
+     * @throws \Exception
      * @throws \yii\web\NotFoundHttpException
      */
     public function run($id)
     {
-        /** @var ActiveRecord $model */
+        /** @var \yii\db\ActiveRecord $model */
         $model = new $this->modelClass();
 
         $model = $model->findOne(['id' => $id]);
@@ -47,10 +30,10 @@ class DeleteAction extends Action
             HttpError::the404('Not found');
         }
 
-        if($model->delete()) {
-            return true;
-        } else {
-            return false;
+        if ($model->delete() === false) {
+            throw new ServerErrorHttpException('Failed to delete the object for unknown reason.');
         }
+
+        Yii::$app->getResponse()->setStatusCode(204);
     }
 }
