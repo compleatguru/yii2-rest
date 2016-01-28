@@ -100,6 +100,10 @@ class MyController extends \platx\rest\Controller
                 'class' => '\platx\rest\actions\CreateAction',
                 'modelClass' => $this->modelClass
             ],
+            'validate' => [
+                'class' => '\platx\rest\actions\ValidateAction',
+                'modelClass' => $this->modelClass
+            ],
             'update' => [
                 'class' => '\platx\rest\actions\UpdateAction',
                 'modelClass' => $this->modelClass
@@ -144,6 +148,7 @@ In your config add this rules to UrlManager rules, if you want to use api like a
     'GET <module:api>/<controller:[\w-]+>/<id:\d+>' => '<module>/<controller>/view',
     'PUT <module:api>/<controller:[\w-]+>/<id:\d+>' => '<module>/<controller>/update',
     'DELETE <module:api>/<controller:[\w-]+>/<id:\d+>' => '<module>/<controller>/delete',
+    'POST <module:api>/<controller:[\w-]+>/<action:validate>' => '<module>/<controller>/<action>',
     '<module:api>/<controller:[\w-]+>/<action:[\w-]+>/<id:\d+>' => '<module>/<controller>/<action>',
     '<module:api>/<controller:[\w-]+>/<action:[\w-]+>' => '<module>/<controller>/<action>',
     ...
@@ -163,6 +168,7 @@ GET http://your-site.com/api/my?fields=id,name - List of records with selecting 
 GET http://your-site.com/api/my?expand=custom_field - List of records with selecting fields value from extraFields array in our model
 GET http://your-site.com/api/my/1 - Get one record by id attribute
 POST http://your-site.com/api/my - Create new record
+POST http://your-site.com/api/my/validate?fields=name,title - Validate specified fields.
 PUT http://your-site.com/api/my/1 - Update record attributes
 DELETE http://your-site.com/api/my/1 - Delete record
 ```
