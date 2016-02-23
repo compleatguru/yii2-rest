@@ -119,7 +119,7 @@ class ApiQuery extends Object
      */
     private function _checkValue($value, $operator = null)
     {
-        if (!empty($value)) {
+        if (!is_null($value)) {
             if(!is_null($operator)) {
                 if($operator == self::OPERATOR_IN || $operator == self::OPERATOR_NOT_IN) {
                     if(is_array($value) || (is_string($value) && strpos($value, ','))) {
