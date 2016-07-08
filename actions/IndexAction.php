@@ -47,7 +47,8 @@ class IndexAction extends Action
             return HttpError::validateError('Validation error', $searchForm->errors);
         }
 
-        $countAll = $query->count();
+        $queryCount = clone $query;
+        $countAll = (int) $queryCount->limit(-1)->offset(-1)->orderBy([])->count('*');
         $query->offset($offset);
         if($limit) {
             $query->limit($limit);
