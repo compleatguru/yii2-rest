@@ -4,7 +4,7 @@ namespace platx\rest;
 
 use yii\base\InvalidParamException;
 use yii\base\Object;
-use yii\db\Query;
+use yii\mongodb\Query;
 use yii\helpers\Json;
 
 
